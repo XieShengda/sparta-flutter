@@ -22,13 +22,13 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
     next(action);
     switch (action.runtimeType) {
       case InitAction:
-        await _init(action, next);
+        _init(action, next);
         break;
       case ReqSmsAction:
         await _fetchSms(action, next);
         break;
       case ReqLoginAction:
-        await _login(action, next);
+        await _login(store, action, next);
         break;
       case ReqRegisterAction:
         await _register(action, next);
@@ -39,27 +39,29 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
     }
   }
 
-  Future<AuthInfo> _getAuthInfo() async {
+  AuthInfo _getAuthInfo() {
     AuthInfo authInfo;
-    var keyValueStore = await SpartaStore.getKeyValueStore();
-    var token = keyValueStore.getString(kToken);
-    var secretKey = keyValueStore.getString(kSecretKey);
+    var token = SpartaStore.keyValueStore?.getString(kToken);
+    var secretKey = SpartaStore.keyValueStore?.getString(kSecretKey);
     if (token != null && secretKey != null) {
       authInfo = AuthInfo(token: token, secretKey: secretKey);
     }
+    debugPrint('get auth info from sp');
+    debugPrint(authInfo.toString());
     return authInfo;
   }
 
   Future<void> _setAuthInfo(AuthInfo authInfo) async {
+    debugPrint('set auth info from sp');
+    debugPrint(authInfo.toString());
     if (authInfo != null) {
-      var keyValueStore = await SpartaStore.getKeyValueStore();
-      keyValueStore.setString(kToken, authInfo.token);
-      keyValueStore.setString(kSecretKey, authInfo.secretKey);
+      SpartaStore.keyValueStore?.setString(kToken, authInfo.token);
+      SpartaStore.keyValueStore?.setString(kSecretKey, authInfo.secretKey);
     }
   }
 
-  Future<void> _init(action, NextDispatcher next) async {
-    AuthInfo authInfo = await _getAuthInfo();
+  _init(action, NextDispatcher next) {
+    AuthInfo authInfo = _getAuthInfo();
     if (authInfo != null) {
       next(InitCompleteAction(authInfo: authInfo));
     }
@@ -71,18 +73,21 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
       SmsInfo smsInfo = await api.fetchSms(action.reqSms);
       next(SmsSuccessAction(smsInfo));
     } catch (e) {
-      next(AuthErrorAction(AuthRequestType.sms));
+      next(AuthErrorAction(AuthRequestType.sms, e));
       debugPrint(e);
     }
   }
 
-  Future<void> _login(action, NextDispatcher next) async {
+  Future<void> _login(
+      Store<AppState> store, action, NextDispatcher next) async {
     next(AuthRequestingAction(AuthRequestType.login));
     try {
       AuthInfo authInfo = await api.login(action.reqLogin);
-      next(AuthSuccessAction(authInfo, AuthRequestType.login));
+      store.dispatch(AuthSuccessAction(authInfo, AuthRequestType.login));
+      debugPrint('login success');
+      debugPrint(authInfo.toString());
     } catch (e) {
-      next(AuthErrorAction(AuthRequestType.login));
+      next(AuthErrorAction(AuthRequestType.login, e));
       debugPrint(e);
     }
   }
@@ -93,7 +98,7 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
       AuthInfo authInfo = await api.register(action.reqRegister);
       next(AuthSuccessAction(authInfo, AuthRequestType.register));
     } catch (e) {
-      next(AuthErrorAction(AuthRequestType.register));
+      next(AuthErrorAction(AuthRequestType.register, e));
       debugPrint(e);
     }
   }

@@ -24,7 +24,9 @@ AuthState authReducer(AuthState state, action) {
     case AuthErrorAction:
       var requestStatus = state.requestStatus;
       requestStatus[action.requestType] = LoadingStatus.error;
-      return state.copyWith(requestStatus: requestStatus);
+      var error = state.error;
+      error[action.requestType] = action.error;
+      return state.copyWith(requestStatus: requestStatus, error: error);
     default:
       return state;
   }

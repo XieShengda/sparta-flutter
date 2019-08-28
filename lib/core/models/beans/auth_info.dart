@@ -11,4 +11,10 @@ class AuthInfo {
 
   factory AuthInfo.fromJson(Map<String, dynamic> json) =>
       _$AuthInfoFromJson(json);
+
+  @override
+  String toString() {
+    return 'AuthInfo{token: $token, secretKey: $secretKey}';
+  }
+
 }

@@ -11,18 +11,15 @@ import 'auth/auth_middleware.dart';
 class SpartaStore {
   static final Store<AppState> global = createStore();
 
-  static dispatch(action) {
-    global.dispatch(action);
+  static KeyValueStore keyValueStore;
+
+  ///需要在runApp执行
+  static Future<void> init() async {
+    keyValueStore = FlutterKeyValueStore(await SharedPreferences.getInstance());
   }
 
-  static KeyValueStore _keyValueStore;
-
-  static Future<KeyValueStore> getKeyValueStore() async {
-    if (_keyValueStore == null) {
-      _keyValueStore =
-          FlutterKeyValueStore(await SharedPreferences.getInstance());
-    }
-    return _keyValueStore;
+  static dispatch(action) {
+    global.dispatch(action);
   }
 }
 

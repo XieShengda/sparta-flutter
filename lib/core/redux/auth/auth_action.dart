@@ -4,6 +4,7 @@ import 'package:sparta/core/models/beans/requset/req_register.dart';
 import 'package:sparta/core/models/beans/requset/req_sms.dart';
 import 'package:sparta/core/models/beans/sms_info.dart';
 import 'package:sparta/core/models/enum/auth_request_type.dart';
+import 'package:sparta/core/networking/response/error.dart';
 
 class ReqSmsAction {
   final ReqSms reqSms;
@@ -44,6 +45,7 @@ class AuthSuccessAction {
 
 class AuthErrorAction {
   final AuthRequestType requestType;
+  final HttpError error;
 
-  AuthErrorAction(this.requestType);
+  AuthErrorAction(this.requestType, this.error);
 }

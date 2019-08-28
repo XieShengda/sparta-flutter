@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
-import 'package:sparta/core/models/enum/loading_status.dart';
 import 'package:sparta/core/redux/common/common_action.dart';
 import 'package:sparta/res/colors.dart';
+import 'package:sparta/ui/boot/boot_page.dart';
 import 'package:sparta/ui/common/supplemental/cut_corners_border.dart';
-import 'package:sparta/ui/home.dart';
-import 'package:sparta/ui/login.dart';
+import 'package:sparta/ui/home/home_page.dart';
+import 'package:sparta/ui/login/login_page.dart';
 
-import 'core/models/enum/auth_request_type.dart';
-import 'core/redux/app/app_state.dart';
 import 'core/redux/store.dart';
 
 Future<void> main() async {
   ///初始化微信sdk
 //  fluwx.register(appId: FluwxConfig.APP_ID);
-
+  await SpartaStore.init();
   runApp(SpartaApp());
 }
 
@@ -44,9 +41,9 @@ class _SpartaAppState extends State<SpartaApp> {
       child: MaterialApp(
         title: "Sparta",
         theme: _buildSpartaTheme(),
-        home: HomePage(),
-        initialRoute: '/login',
-        onGenerateRoute: _getRoute,
+        home: BootPage(),
+        routes: _getRoutes(),
+        onGenerateRoute: _onGenerateRoute,
       ),
     );
   }
@@ -102,13 +99,24 @@ class _SpartaAppState extends State<SpartaApp> {
         );
   }
 
-  Route<dynamic> _getRoute(RouteSettings settings) {
+  Route<dynamic> _onGenerateRoute(RouteSettings settings) {
+    Widget page = HomePage();
+    // todo 注册页面不跳转
     if (settings.name != '/login' ||
-        SpartaStore.global.state.authState.hasLogin) return null;
+        !SpartaStore.global.state.authState.hasLogin) {
+      page = LoginPage();
+    }
 
     return MaterialPageRoute(
-        settings: settings,
-        builder: (context) => LoginPage(),
-        fullscreenDialog: true);
+      settings: settings,
+      builder: (context) => page,
+    );
+  }
+
+  Map<String, Widget Function(BuildContext)> _getRoutes() {
+    return {
+      '/home': (BuildContext context) => HomePage(),
+      '/login': (BuildContext context) => LoginPage(),
+    };
   }
 }

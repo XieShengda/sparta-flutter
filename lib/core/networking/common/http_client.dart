@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:sparta/core/networking/config/api_config.dart';
+import 'package:sparta/core/networking/response/error.dart';
 import 'package:sparta/core/redux/store.dart';
 
 class HttpClient {
@@ -41,7 +42,9 @@ class HttpClient {
 ##### REQUEST_BODY: $body
 ##### RESPONSE_BODY: ${response.body}
     ''');
-
+    if (response.statusCode != HttpStatus.ok) {
+      throw HttpError.fromJson(jsonDecode(response.body));
+    }
     return jsonDecode(response.body);
   }
 }
