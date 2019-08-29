@@ -6,9 +6,9 @@ import 'package:sparta/core/models/enum/loading_status.dart';
 import 'package:sparta/core/redux/app/app_state.dart';
 import 'package:sparta/ui/common/router.dart';
 import 'package:sparta/ui/common/snack_bar.dart';
-import 'package:sparta/ui/login/login_content_form.dart';
 
 import '../common/platform_adaptive_progress_indicator.dart';
+import 'login_valid_code.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -41,7 +41,7 @@ class LoginPage extends StatelessWidget {
 
   List<Widget> _buildStack(Store<AppState> store) {
     var widgets = <Widget>[
-      LoginContentForm(
+      LoginValidCode(
         store: store,
       ),
     ];

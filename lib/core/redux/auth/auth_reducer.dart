@@ -1,3 +1,4 @@
+import 'package:sparta/core/models/enum/auth_request_type.dart';
 import 'package:sparta/core/models/enum/loading_status.dart';
 import 'package:sparta/core/redux/common/common_action.dart';
 
@@ -13,7 +14,14 @@ AuthState authReducer(AuthState state, action) {
       requestStatus[action.requestType] = LoadingStatus.loading;
       return state.copyWith(requestStatus: requestStatus);
     case SmsSuccessAction:
-      return state.copyWith(smsInfo: action.smsInfo);
+      var requestStatus = state.requestStatus;
+      requestStatus[AuthRequestType.sms] = LoadingStatus.success;
+      return state.copyWith(
+          requestStatus: requestStatus, smsInfo: action.smsInfo);
+    case SmsInitAction:
+      var requestStatus = state.requestStatus;
+      requestStatus[AuthRequestType.sms] = LoadingStatus.idle;
+      return state.copyWith(requestStatus: requestStatus);
     case AuthSuccessAction:
       var requestStatus = state.requestStatus;
       requestStatus[action.requestType] = LoadingStatus.success;

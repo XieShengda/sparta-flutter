@@ -31,7 +31,7 @@ class AuthState {
           AuthRequestType.changePassword: LoadingStatus.idle,
           AuthRequestType.login: LoadingStatus.idle,
         },
-        smsInfo: SmsInfo(ApiConfig.DEBUG_MSG_ID),
+        smsInfo: null,
         error: {},
         hasLogin: false,
       );

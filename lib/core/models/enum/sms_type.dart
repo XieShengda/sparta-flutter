@@ -1,5 +1,5 @@
 class SmsType {
-  static const REGISTER = 1;
-  static const CHANGE_PASSWORD = 2;
-  static const LOGIN = 3;
+  static const register = 1;
+  static const changePassword = 2;
+  static const login = 3;
 }

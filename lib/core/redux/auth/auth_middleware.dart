@@ -31,7 +31,10 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
         await _login(store, action, next);
         break;
       case ReqRegisterAction:
-        await _register(action, next);
+        await _register(store, action, next);
+        break;
+      case ReqLoginByCodeAction:
+        await _loginByCode(store, action, next);
         break;
       case AuthSuccessAction:
         await _authSuccess(action, next);
@@ -39,6 +42,7 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
     }
   }
 
+  ///SharedPreference
   AuthInfo _getAuthInfo() {
     AuthInfo authInfo;
     var token = SpartaStore.keyValueStore?.getString(kToken);
@@ -60,6 +64,7 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
     }
   }
 
+  ///init
   _init(action, NextDispatcher next) {
     AuthInfo authInfo = _getAuthInfo();
     if (authInfo != null) {
@@ -78,6 +83,18 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
     }
   }
 
+  Future<void> _loginByCode(
+      Store<AppState> store, action, NextDispatcher next) async {
+    next(AuthRequestingAction(AuthRequestType.login));
+    try {
+      AuthInfo authInfo = await api.loginByCode(action.reqLoginByCode);
+      store.dispatch(AuthSuccessAction(authInfo, AuthRequestType.login));
+    } catch (e) {
+      next(AuthErrorAction(AuthRequestType.login, e));
+      debugPrint(e);
+    }
+  }
+
   Future<void> _login(
       Store<AppState> store, action, NextDispatcher next) async {
     next(AuthRequestingAction(AuthRequestType.login));
@@ -92,11 +109,12 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
     }
   }
 
-  Future<void> _register(action, NextDispatcher next) async {
+  Future<void> _register(
+      Store<AppState> store, action, NextDispatcher next) async {
     next(AuthRequestingAction(AuthRequestType.register));
     try {
       AuthInfo authInfo = await api.register(action.reqRegister);
-      next(AuthSuccessAction(authInfo, AuthRequestType.register));
+      store.dispatch(AuthSuccessAction(authInfo, AuthRequestType.register));
     } catch (e) {
       next(AuthErrorAction(AuthRequestType.register, e));
       debugPrint(e);
