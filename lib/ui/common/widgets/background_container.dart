@@ -9,11 +9,17 @@ class BackgroundContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
+      fit: StackFit.expand,
       children: <Widget>[
-        Image.asset(
-          'assets/images/background_image.jpg',
-          fit: BoxFit.cover,
+//        Image.asset(
+//          'assets/images/background_image.jpg',
+//          fit: BoxFit.cover,
+//        ),
+      DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors:<Color>[Colors.yellow, Colors.white], begin: Alignment.topLeft, end: Alignment.bottomCenter )
         ),
+      )
       ]..addAll(children),
     );
   }

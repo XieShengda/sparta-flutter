@@ -28,6 +28,8 @@ class AuthErrorAction {
   AuthErrorAction(this.requestType, this.error);
 }
 
+class InitAuthRequestStatusAction {}
+
 ///sms
 class ReqSmsAction {
   final ReqSms reqSms;
@@ -40,8 +42,6 @@ class SmsSuccessAction {
 
   SmsSuccessAction(this.smsInfo);
 }
-
-class SmsInitAction {}
 
 ///register
 class ReqRegisterAction {
@@ -63,3 +63,12 @@ class ReqLoginByCodeAction {
 
   ReqLoginByCodeAction(this.reqLoginByCode);
 }
+
+///logout
+class LogoutAction {}
+
+///invalid
+class InvalidAuthAction{}
+
+///clear auth info
+class ClearAuthAction {}

@@ -39,6 +39,9 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
       case AuthSuccessAction:
         await _authSuccess(action, next);
         break;
+      case ClearAuthAction:
+        await _clearAuth();
+        break;
     }
   }
 
@@ -50,18 +53,24 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
     if (token != null && secretKey != null) {
       authInfo = AuthInfo(token: token, secretKey: secretKey);
     }
-    debugPrint('get auth info from sp');
+    debugPrint('Get auth info from shared preference');
     debugPrint(authInfo.toString());
     return authInfo;
   }
 
   Future<void> _setAuthInfo(AuthInfo authInfo) async {
-    debugPrint('set auth info from sp');
+    debugPrint('Set auth info to shared preference');
     debugPrint(authInfo.toString());
     if (authInfo != null) {
       SpartaStore.keyValueStore?.setString(kToken, authInfo.token);
       SpartaStore.keyValueStore?.setString(kSecretKey, authInfo.secretKey);
     }
+  }
+
+  Future<void> _clearAuthInfo() async {
+    debugPrint('clear auth info');
+    SpartaStore.keyValueStore?.remove(kToken);
+    SpartaStore.keyValueStore?.remove(kSecretKey);
   }
 
   ///init
@@ -79,11 +88,11 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
       next(SmsSuccessAction(smsInfo));
     } catch (e) {
       next(AuthErrorAction(AuthRequestType.sms, e));
-      debugPrint(e);
+      debugPrint(e.toString());
     }
   }
 
-  Future<void> _loginByCode(
+  _loginByCode(
       Store<AppState> store, action, NextDispatcher next) async {
     next(AuthRequestingAction(AuthRequestType.login));
     try {
@@ -91,7 +100,7 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
       store.dispatch(AuthSuccessAction(authInfo, AuthRequestType.login));
     } catch (e) {
       next(AuthErrorAction(AuthRequestType.login, e));
-      debugPrint(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -105,7 +114,7 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
       debugPrint(authInfo.toString());
     } catch (e) {
       next(AuthErrorAction(AuthRequestType.login, e));
-      debugPrint(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -117,11 +126,15 @@ class AuthMiddleWare extends MiddlewareClass<AppState> {
       store.dispatch(AuthSuccessAction(authInfo, AuthRequestType.register));
     } catch (e) {
       next(AuthErrorAction(AuthRequestType.register, e));
-      debugPrint(e);
+      debugPrint(e.toString());
     }
   }
 
   Future<void> _authSuccess(action, NextDispatcher next) async {
     _setAuthInfo(action.authInfo);
+  }
+
+  Future<void> _clearAuth() async {
+    _clearAuthInfo();
   }
 }

@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:sparta/core/redux/common/common_action.dart';
 import 'package:sparta/res/colors.dart';
+import 'package:sparta/ui/animation/animation/home.dart';
+import 'package:sparta/ui/animation/animation_demo_1.dart';
 import 'package:sparta/ui/boot/boot_page.dart';
-import 'package:sparta/ui/common/supplemental/cut_corners_border.dart';
+import 'package:sparta/ui/common/widgets/cut_corners_border.dart';
 import 'package:sparta/ui/home/home_page.dart';
 import 'package:sparta/ui/login/login_page.dart';
 
+import 'core/models/enum/auth_status.dart';
 import 'core/redux/store.dart';
 
 Future<void> main() async {
@@ -40,7 +43,9 @@ class _SpartaAppState extends State<SpartaApp> {
       store: SpartaStore.global,
       child: MaterialApp(
         title: "Sparta",
-        home: BootPage(),
+        home: SpartaStore.global.state.authState.authStatus == AuthStatus.login
+            ? AnimationDemoHome()
+            : LoginPage(),
         routes: _getRoutes(),
         onGenerateRoute: _onGenerateRoute,
         theme: _kShrineTheme.copyWith(platform: Theme.of(context).platform),
@@ -102,10 +107,11 @@ class _SpartaAppState extends State<SpartaApp> {
   Route<dynamic> _onGenerateRoute(RouteSettings settings) {
     Widget page = HomePage();
     // todo 注册页面不跳转
-    if (settings.name != '/login' ||
-        !SpartaStore.global.state.authState.hasLogin) {
+    //todo 游客模式需要判断
+/*    if (settings.name != '/login' ||
+        SpartaStore.global.state.authState.authStatus != AuthStatus.login) {
       page = LoginPage();
-    }
+    }*/
 
     return MaterialPageRoute(
       settings: settings,
@@ -115,7 +121,7 @@ class _SpartaAppState extends State<SpartaApp> {
 
   Map<String, Widget Function(BuildContext)> _getRoutes() {
     return {
-      '/home': (BuildContext context) => HomePage(),
+      '/home': (BuildContext context) => AnimationDemoHome(),
       '/login': (BuildContext context) => LoginPage(),
     };
   }
@@ -130,7 +136,6 @@ IconThemeData _customIconTheme(IconThemeData original) {
 ThemeData _buildShrineTheme() {
   final ThemeData base = ThemeData.light();
   return base.copyWith(
-//    hintColor: kShrineBrown900, //输入框下划线颜色
     colorScheme: kShrineColorScheme,
     accentColor: kShrineBrown900,
     primaryColor: kShrinePink100,

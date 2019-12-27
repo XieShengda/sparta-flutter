@@ -12,7 +12,7 @@ import 'package:sparta/core/models/enum/sms_type.dart';
 import 'package:sparta/core/redux/app/app_state.dart';
 import 'package:sparta/core/redux/auth/auth_action.dart';
 import 'package:sparta/res/colors.dart';
-import 'package:sparta/ui/common/snack_bar.dart';
+import 'package:sparta/ui/common/utils/snack_bar_util.dart';
 
 class LoginValidCode extends StatefulWidget {
   final Store<AppState> store;
@@ -46,6 +46,8 @@ class _LoginValidCodeState extends State<LoginValidCode> {
   @override
   void dispose() {
     _timer?.cancel();
+    _mobileController.dispose();
+    _codeController.dispose();
     super.dispose();
   }
 
@@ -53,16 +55,17 @@ class _LoginValidCodeState extends State<LoginValidCode> {
   @override
   Widget build(BuildContext context) {
     return StoreConnector(
-      onDidChange: (store) {
+      onDidChange: (Store<AppState> store) {
         switch (store.state.authState.requestStatus[AuthRequestType.sms]) {
           case LoadingStatus.error:
-            SnackBarShower.text(context,
+            SnackBarUtil.textByContext(context,
                 store.state.authState.error[AuthRequestType.sms].message);
+            store.dispatch(InitAuthRequestStatusAction());
             break;
           case LoadingStatus.success:
-            SnackBarShower.text(context, '验证码发送成功');
+            SnackBarUtil.textByContext(context, '验证码发送成功');
             _startCountDownTimer();
-            store.dispatch(SmsInitAction());
+            store.dispatch(InitAuthRequestStatusAction());
             break;
           default:
         }
@@ -88,12 +91,12 @@ class _LoginValidCodeState extends State<LoginValidCode> {
                 children: <Widget>[
                   ///验证码输入框
                   buildValidCodeField(store),
-                  SizedBox(
-                    width: 20,
-                  ),
 
                   ///获取验证码
-                  buildValidCodeButton(context, store),
+                  Padding(
+                    padding: EdgeInsets.only(left: 18, right: 18),
+                    child: buildValidCodeButton(context, store),
+                  ),
                 ],
               ),
 
@@ -119,6 +122,7 @@ class _LoginValidCodeState extends State<LoginValidCode> {
     );
   }
 
+  ///手机号输入框
   Widget buildPhoneField() {
     return AccentColorOverride(
       color: kShrineBrown900,
@@ -134,52 +138,28 @@ class _LoginValidCodeState extends State<LoginValidCode> {
           return null;
         },
         decoration: InputDecoration(
+//          labelStyle: TextStyle(color: Colors.white),
           labelText: 'Phone',
         ),
       ),
     );
   }
 
-  Widget buildValidCodeButton(BuildContext context, Store<AppState> store) {
-    return GestureDetector(
-      child: Text(
-        _countdownTime > 0 ? '$_countdownTime秒后重新获取' : '获取验证码',
-        style: TextStyle(
-          fontSize: 14,
-          color: _countdownTime > 0 ? kShrinePink100 : kShrineBrown900,
-        ),
-      ),
-      onTap: () {
-        if (_countdownTime > 0) {
-          return;
-        }
-        if (_mobileController.text.isEmpty) {
-          SnackBarShower.text(context, '手机号为空');
-          return;
-        }
-        if (!RegExp(r'^1[0-9]{10}$').hasMatch(_mobileController.text)) {
-          SnackBarShower.text(context, '手机号格式错误');
-          return;
-        }
-        store.dispatch(ReqSmsAction(
-          ReqSms(mobile: _mobileController.text, type: SmsType.login),
-        ));
-      },
-    );
-  }
-
+  ///验证码输入框
   Widget buildValidCodeField(Store<AppState> store) {
     return AccentColorOverride(
       color: kShrineBrown900,
       child: Expanded(
         child: TextFormField(
           onFieldSubmitted: (value) {
-            doLogin(store);
+            doLogin(context, store);
           },
           textInputAction: TextInputAction.go,
           controller: _codeController,
           maxLines: 1,
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(
+//            labelStyle: TextStyle(color: Colors.white),
             labelText: 'Valid Code',
           ),
           validator: (value) {
@@ -196,6 +176,45 @@ class _LoginValidCodeState extends State<LoginValidCode> {
     );
   }
 
+  ///获取验证码
+  Widget buildValidCodeButton(BuildContext context, Store<AppState> store) {
+    return store.state.authState.requestStatus[AuthRequestType.sms] ==
+            LoadingStatus.loading
+        ? SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+            ),
+          )
+        : GestureDetector(
+            child: Text(
+              _countdownTime > 0 ? '$_countdownTime秒后重新获取' : '获取验证码',
+              style: TextStyle(
+                fontSize: 14,
+                color: _countdownTime > 0 ? Colors.grey[400] : kShrineBrown900,
+              ),
+            ),
+            onTap: () {
+              if (_countdownTime > 0) {
+                return;
+              }
+              if (_mobileController.text.isEmpty) {
+                SnackBarUtil.textByContext(context, '手机号为空');
+                return;
+              }
+              if (!RegExp(r'^1[0-9]{10}$').hasMatch(_mobileController.text)) {
+                SnackBarUtil.textByContext(context, '手机号格式错误');
+                return;
+              }
+              store.dispatch(ReqSmsAction(
+                ReqSms(mobile: _mobileController.text, type: SmsType.login),
+              ));
+            },
+          );
+  }
+
+  ///登录按钮
   Widget buildButtonBar(Store<AppState> store) {
     return Wrap(
       children: <Widget>[
@@ -217,7 +236,7 @@ class _LoginValidCodeState extends State<LoginValidCode> {
                 borderRadius: BorderRadius.all(Radius.circular(7.0)),
               ),
               onPressed: () {
-                doLogin(store);
+                doLogin(context, store);
               },
             ),
           ],
@@ -226,13 +245,17 @@ class _LoginValidCodeState extends State<LoginValidCode> {
     );
   }
 
-  void doLogin(Store<AppState> store) {
+  void doLogin(BuildContext context, Store<AppState> store) {
     if (_formKey.currentState.validate()) {
-      widget.store.dispatch(ReqLoginByCodeAction(ReqLoginByCode(
-        mobile: _mobileController.text,
-        validCode: _codeController.text,
-        msgId: store.state.authState.smsInfo.msgId,
-      )));
+      if (store.state.authState.smsInfo == null) {
+        SnackBarUtil.textByContext(context, '验证码发送成功才可登录');
+      } else {
+        widget.store.dispatch(ReqLoginByCodeAction(ReqLoginByCode(
+          mobile: _mobileController.text,
+          validCode: _codeController.text,
+          msgId: store.state.authState.smsInfo?.msgId,
+        )));
+      }
     }
   }
 }

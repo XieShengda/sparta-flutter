@@ -4,6 +4,7 @@ class ApiConfig {
   static const DEFAULT_ERROR_MESSAGE = 'unknown error';
   static const TOKEN_HEADER_KEY = 'Authorization';
   static const GUEST_TOKEN = 'Guest';
+  static const SIGN = true;
   static const DEBUG_MSG_ID = '000';
   static const BASE_URL = bool.fromEnvironment('dart.vm.product')
       ? 'http://www.product.com/sparta' //prod
@@ -14,5 +15,5 @@ class ApiConfig {
   static const CONTEXT_PATH = 'sparta';
   static const HOST = bool.fromEnvironment('dart.vm.product')
       ? 'www.produce.com' //prod
-      : '192.168.2.100'; //dev;
+      : '192.168.2.2'; //dev;
 }
