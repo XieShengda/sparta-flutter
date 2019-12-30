@@ -16,5 +16,4 @@ class AuthInfo {
   String toString() {
     return 'AuthInfo{token: $token, secretKey: $secretKey}';
   }
-
 }

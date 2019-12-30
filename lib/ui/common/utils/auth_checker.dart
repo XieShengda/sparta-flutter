@@ -9,7 +9,7 @@ class AuthChecker {
   static check(BuildContext context, Store<AppState> store) {
     final authState = store.state.authState.authStatus;
     if (authState != AuthStatus.initial && authState != AuthStatus.login) {
-      Router.login(context);
+      Router.toLogin(context);
     }
   }
 }

@@ -148,7 +148,7 @@ class _LoginValidCodeState extends State<LoginValidCode> {
   ///验证码输入框
   Widget buildValidCodeField(Store<AppState> store) {
     return AccentColorOverride(
-      color: kShrineBrown900,
+      color: spartaLightPrimary,
       child: Expanded(
         child: TextFormField(
           onFieldSubmitted: (value) {

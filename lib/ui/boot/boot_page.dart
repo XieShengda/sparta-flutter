@@ -17,7 +17,7 @@ class _BootPageState extends State<BootPage> {
 
   @override
   void initState() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         if (_remainSeconds < 1) {
           timer.cancel();
@@ -67,9 +67,9 @@ class _BootPageState extends State<BootPage> {
 
   void _redirection() {
     if (SpartaStore.global.state.authState.authStatus == AuthStatus.login) {
-      Router.home(context);
+      Router.toHome(context);
     } else {
-      Router.login(context);
+      Router.toLogin(context);
     }
   }
 }

@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
         store.dispatch(InitAuthRequestStatusAction());
         break;
       case LoadingStatus.success:
-        Router.home(context); //跳转到主页之后初始化请求状态
+        Router.toHome(context); //跳转到主页之后初始化请求状态
         break;
       default:
     }

@@ -25,3 +25,9 @@ const kShrineErrorRed = const Color(0xFFC5032B);
 
 const kShrineSurfaceWhite = const Color(0xFFFFFBFA);
 const kShrineBackgroundWhite = Colors.white;
+
+const spartaDarkPrimary = Color(0x16293E);
+const spartaPrimary = Color(0x243A57);
+const spartaLightPrimary = Color(0x2D466A);
+const spartaWhite = Color(0xFFFFFF);
+
