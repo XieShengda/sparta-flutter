@@ -13,7 +13,7 @@ class BootPage extends StatefulWidget {
 
 class _BootPageState extends State<BootPage> {
   Timer _timer;
-  int _remainSeconds = 6;
+  int _remainSeconds = 1;
 
   @override
   void initState() {

@@ -9,7 +9,6 @@ import 'package:sparta/core/redux/store.dart';
 import 'package:sparta/res/colors.dart';
 import 'package:sparta/ui/common/utils/auth_checker.dart';
 import 'package:sparta/ui/common/utils/snack_bar_util.dart';
-import 'package:sparta/ui/common/widgets/backdrop.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -21,6 +20,83 @@ class _HomePageState extends State<HomePage> {
   final data = ['1', '2'];
   final scaffoldKey = GlobalKey<ScaffoldState>();
   PageController _pageController;
+  final List<Widget> pages = <Widget>[
+    Center(
+      key: UniqueKey(),
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 250,
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
+              title: Text('sliver'),
+              background: PageView(
+                children: <Widget>[
+                  Container(
+                    constraints: BoxConstraints(
+                        minHeight: double.infinity, minWidth: double.infinity),
+                    child: Icon(Icons.account_circle),
+                    decoration: BoxDecoration(color: Colors.lime),
+                  ),
+                  Container(
+                    constraints: BoxConstraints(
+                        minHeight: double.infinity, minWidth: double.infinity),
+                    child: Icon(Icons.account_circle),
+                    decoration: BoxDecoration(color: Colors.red),
+                  ),
+                  Container(
+                    constraints: BoxConstraints(
+                        minHeight: double.infinity, minWidth: double.infinity),
+                    child: Icon(Icons.account_circle),
+                    decoration: BoxDecoration(color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: EdgeInsets.all(8.0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) => ListTile(
+                        title: Text('title$index'),
+                      ),
+                  childCount: 20),
+            ),
+          )
+        ],
+      ),
+    ),
+    Center(
+      key: UniqueKey(),
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            pinned: true,
+            expandedHeight: 450,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text('sliver'),
+              background: Image.asset(
+                'assets/images/background_image.jpg',
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: EdgeInsets.all(8.0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) => ListTile(
+                        title: Text('title$index'),
+                      ),
+                  childCount: 20),
+            ),
+          )
+        ],
+      ),
+    )
+  ];
 
   @override
   void initState() {
@@ -51,12 +127,11 @@ class _HomePageState extends State<HomePage> {
       builder: (BuildContext context, Store<AppState> store) => Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
-          backgroundColor: spartaDarkPrimary,
           elevation: 0,
           centerTitle: true,
           title: Row(
             mainAxisSize: MainAxisSize.min,
-            children: <Widget>[const Text('杭州')],
+            children: <Widget>[ const Text('杭州')],
           ),
           actions: <Widget>[
             IconButton(
@@ -68,35 +143,14 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        body: Material(
-          elevation: 0,
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(32.0), topRight: Radius.circular(32.0)),
-          child: Column(
-            children: <Widget>[
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => print(''),
-                child: Container(
-                  height: 60.0,
-                ),
-              ),
-              Expanded(
-                child: Container(),
-              )
-            ],
-          ),
-        ),
+        body: pages[_pageIndex],
         floatingActionButton: FloatingActionButton(
           child: Icon(
             Icons.add,
             color: kShrineBrown900,
           ),
           onPressed: () {
-            showDialog(
-                context: context,
-                builder: (context) => DemoDialog(),
-                barrierDismissible: false);
+            showDialog(context: context, builder: (context) => DemoDialog(),barrierDismissible: false);
           },
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
